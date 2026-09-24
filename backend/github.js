@@ -76,7 +76,10 @@ async function githubFetch(apiPath) {
   }
   let res;
   try {
-    res = await fetch(API_BASE + apiPath, { headers: baseHeaders() });
+    res = await fetch(API_BASE + apiPath, {
+      headers: baseHeaders(),
+      signal: AbortSignal.timeout(20000),
+    });
   } catch (e) {
     const err = new Error('Failed to reach GitHub API');
     err.status = 502;
