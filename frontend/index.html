@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevHub — Developer &amp; Repo Analytics</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="nav" role="banner">
+  <a class="brand" href="#/" aria-label="DevHub home"><span class="brand-mark">&lt;/&gt;</span> DevHub</a>
+  <button id="menuBtn" class="menu-btn" aria-label="Toggle menu" aria-expanded="false">☰</button>
+  <nav id="mainNav" class="nav-links" aria-label="Main navigation">
+    <a href="#/" data-route="home">Search</a>
+    <a href="#/dashboard" data-route="dashboard">Dashboard</a>
+    <a href="#/compare" data-route="compare">Compare</a>
+  </nav>
+  <div class="nav-right">
+    <span id="rateBadge" class="rate-badge" title="GitHub API rate limit" aria-live="polite">API: …</span>
+    <span id="authState" class="auth-state"></span>
+    <button id="authBtn" class="btn btn-primary">Sign in</button>
+  </div>
+</header>
+
+<main id="view" class="container" aria-live="polite"></main>
+
+<footer class="footer"><span>DevHub · GitHub analytics · same-origin API</span><span id="healthDot" title="API health">●</span></footer>
+
+<div id="authModal" class="modal-backdrop" hidden role="dialog" aria-modal="true" aria-labelledby="authTitle">
+  <div class="modal">
+    <h2 id="authTitle">Sign in to DevHub</h2>
+    <div class="tabs" role="tablist">
+      <button id="tabLogin" class="tab active" role="tab" aria-selected="true">Login</button>
+      <button id="tabRegister" class="tab" role="tab" aria-selected="false">Register</button>
+    </div>
+    <form id="loginForm" class="stack">
+      <label>Username or email<input id="loginId" type="text" autocomplete="username" required></label>
+      <label>Password<input id="loginPw" type="password" autocomplete="current-password" required></label>
+      <button class="btn btn-primary" type="submit">Login</button>
+    </form>
+    <form id="registerForm" class="stack" hidden>
+      <label>Username<input id="regUser" type="text" autocomplete="username" required></label>
+      <label>Email<input id="regEmail" type="email" autocomplete="email" required></label>
+      <label>Password<input id="regPw" type="password" autocomplete="new-password" required minlength="6"></label>
+      <button class="btn btn-primary" type="submit">Create account</button>
+    </form>
+    <button id="authClose" class="btn btn-ghost" type="button">Close</button>
+    <p id="authErr" class="error" role="alert"></p>
+  </div>
+</div>
+
+<div id="toasts" class="toasts" aria-live="assertive"></div>
+<script src="app.js"></script>
+</body>
+</html>
