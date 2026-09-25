@@ -216,7 +216,7 @@ async function vRepo(owner, name) {
         <div class="tiles">
           <div class="tile"><b>★ ${esc(r.stargazers_count ?? 0)}</b><span>stars</span></div>
           <div class="tile"><b>⑂ ${esc(r.forks_count ?? 0)}</b><span>forks</span></div>
-          <div class="tile"><b>! ${esc(d.openIssues ?? r.open_issues_count ?? 0)}</b><span>open issues</span></div>
+          <div class="tile"><b>! ${esc(Array.isArray(d.openIssues) ? d.openIssues.length : (d.openIssues ?? r.open_issues_count ?? 0))}</b><span>open issues</span></div>
           <div class="tile"><b>👁 ${esc(r.watchers_count ?? r.subscribers_count ?? 0)}</b><span>watchers</span></div>
         </div>
         <div class="row">${favBtn("repo", r.full_name, r.full_name, {stars: r.stargazers_count, description: r.description, url: r.html_url})}</div>
