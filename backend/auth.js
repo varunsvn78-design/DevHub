@@ -3,7 +3,10 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'devhub-secret-change-me';
+if (process.env.NODE_ENV === 'production' && (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32)) {
+  throw new Error('Set JWT_SECRET to at least 32 random characters in production.');
+}
+const JWT_SECRET = process.env.JWT_SECRET || 'devhub-local-development-secret-only';
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d';
 
 function hashPassword(password) {

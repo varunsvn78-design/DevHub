@@ -3,10 +3,12 @@
 const path = require('node:path');
 const { DatabaseSync } = require('node:sqlite');
 
-const dbPath = path.join(__dirname, 'devhub.db');
+const dbPath = process.env.DB_PATH || path.join(__dirname, 'devhub.db');
 const db = new DatabaseSync(dbPath);
 
 db.exec(`
+PRAGMA foreign_keys = ON;
+PRAGMA journal_mode = WAL;
 CREATE TABLE IF NOT EXISTS users (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   username TEXT UNIQUE NOT NULL,

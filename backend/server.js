@@ -11,7 +11,13 @@ const compareRoutes = require('./routes/compare');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(express.json());
+app.disable('x-powered-by');
+app.use(express.json({ limit: '32kb' }));
+app.use((req, res, next) => {
+  res.set('X-Content-Type-Options', 'nosniff');
+  res.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+  next();
+});
 
 // Request log
 app.use((req, res, next) => {
@@ -46,7 +52,7 @@ app.use('/api', (req, res) => {
 app.use((err, req, res, next) => {
   console.error(err);
   const status = err && Number.isInteger(err.status) ? err.status : 500;
-  res.status(status).json({ error: err && err.message ? err.message : 'Internal server error' });
+  res.status(status).json({ error: status < 500 && err.message ? err.message : 'Internal server error' });
 });
 
 if (require.main === module) {

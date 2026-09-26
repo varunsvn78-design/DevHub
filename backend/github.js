@@ -87,6 +87,8 @@ async function githubFetch(apiPath) {
     throw err;
   }
   captureRateLimit(res);
+  if (res.status === 202) return { pending: true };
+  if (res.status === 204) return [];
   if (res.status === 404) {
     const err = new Error('Not found');
     err.status = 404;
@@ -94,7 +96,12 @@ async function githubFetch(apiPath) {
   }
   if (res.status === 403 || res.status === 429) {
     const text = await res.text().catch(() => '');
-    throw rateLimitError(res, text);
+    if (res.status === 429 || res.headers.get('x-ratelimit-remaining') === '0' || /rate limit|secondary rate|abuse/i.test(text)) {
+      throw rateLimitError(res, text);
+    }
+    const err = new Error('GitHub denied access to this resource.');
+    err.status = 403;
+    throw err;
   }
   if (!res.ok) {
     const text = await res.text().catch(() => '');

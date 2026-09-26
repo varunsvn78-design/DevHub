@@ -7,7 +7,8 @@ const router = express.Router();
 
 function cmpRow(metric, a, b) {
   let winner = 'tie';
-  if (a > b) winner = 'a';
+  if (a == null || b == null) winner = 'unavailable';
+  else if (a > b) winner = 'a';
   else if (b > a) winner = 'b';
   return { metric, a, b, winner };
 }
@@ -26,13 +27,13 @@ function repoMetrics(r) {
 router.get('/repos', async (req, res, next) => {
   try {
     const { repoA, repoB } = req.query;
-    if (!repoA || !repoB) {
+    if (typeof repoA !== 'string' || typeof repoB !== 'string') {
       return res.status(400).json({ error: 'query params repoA and repoB are required (format owner/name)' });
     }
     const parse = (s) => String(s).split('/').map((x) => x.trim());
     const [ownerA, nameA] = parse(repoA);
     const [ownerB, nameB] = parse(repoB);
-    if (!ownerA || !nameA || !ownerB || !nameB) {
+    if (!/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(repoA) || !/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(repoB)) {
       return res.status(400).json({ error: 'repoA and repoB must be in owner/name format' });
     }
     let a;
@@ -66,7 +67,7 @@ router.get('/repos', async (req, res, next) => {
 router.get('/devs', async (req, res, next) => {
   try {
     const { userA, userB } = req.query;
-    if (!userA || !userB) {
+    if (typeof userA !== 'string' || typeof userB !== 'string' || !/^[A-Za-z0-9-]+$/.test(userA) || !/^[A-Za-z0-9-]+$/.test(userB)) {
       return res.status(400).json({ error: 'query params userA and userB are required' });
     }
     let pa;
@@ -82,17 +83,17 @@ router.get('/devs', async (req, res, next) => {
       throw err;
     }
     const [ra, rb] = await Promise.all([
-      gh.getUserRepos(String(userA).trim(), 1, 100).catch(() => []),
-      gh.getUserRepos(String(userB).trim(), 1, 100).catch(() => []),
+      gh.getUserRepos(String(userA).trim(), 1, 100).catch(() => null),
+      gh.getUserRepos(String(userB).trim(), 1, 100).catch(() => null),
     ]);
     const listA = Array.isArray(ra) ? ra : [];
     const listB = Array.isArray(rb) ? rb : [];
     const stars = (repos) => repos.reduce((s, r) => s + (r.stargazers_count || 0), 0);
     const forks = (repos) => repos.reduce((s, r) => s + (r.forks_count || 0), 0);
-    const sa = stars(listA);
-    const sb = stars(listB);
-    const fa = forks(listA);
-    const fb = forks(listB);
+    const sa = ra ? stars(listA) : null;
+    const sb = rb ? stars(listB) : null;
+    const fa = ra ? forks(listA) : null;
+    const fb = rb ? forks(listB) : null;
     const comparison = [
       cmpRow('followers', pa.followers || 0, pb.followers || 0),
       cmpRow('following', pa.following || 0, pb.following || 0),
@@ -102,7 +103,7 @@ router.get('/devs', async (req, res, next) => {
       cmpRow('totalForks', fa, fb),
       cmpRow('repoCount', listA.length, listB.length),
     ];
-    return res.json({ a: pa, b: pb, comparison });
+    return res.json({ a: pa, b: pb, comparison, sample: { a: { analyzed: listA.length, total: pa.public_repos, available: ra !== null }, b: { analyzed: listB.length, total: pb.public_repos, available: rb !== null } } });
   } catch (err) {
     return next(err);
   }

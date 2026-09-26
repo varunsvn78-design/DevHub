@@ -13,18 +13,18 @@ function isValidEmail(email) {
 router.post('/register', (req, res, next) => {
   try {
     const { username, email, password } = req.body || {};
-    if (!username || typeof username !== 'string' || username.trim().length < 2) {
-      return res.status(400).json({ error: 'username must be at least 2 characters' });
+    if (!username || typeof username !== 'string' || username.trim().length < 2 || username.trim().length > 40) {
+      return res.status(400).json({ error: 'username must be 2–40 characters' });
     }
     if (!isValidEmail(email)) {
       return res.status(400).json({ error: 'valid email is required' });
     }
-    if (!password || typeof password !== 'string' || password.length < 6) {
-      return res.status(400).json({ error: 'password must be at least 6 characters' });
+    if (!password || typeof password !== 'string' || password.length < 8 || Buffer.byteLength(password) > 72) {
+      return res.status(400).json({ error: 'password must be at least 8 characters and at most 72 bytes' });
     }
     const uname = username.trim();
     const mail = email.trim().toLowerCase();
-    const existing = db.prepare('SELECT id, username, email FROM users WHERE username = ? OR email = ?').get(uname, mail);
+    const existing = db.prepare('SELECT id, username, email FROM users WHERE lower(username) = lower(?) OR email = ?').get(uname, mail);
     if (existing) {
       return res.status(409).json({ error: 'username or email already taken' });
     }
@@ -42,7 +42,8 @@ router.post('/register', (req, res, next) => {
 router.post('/login', (req, res, next) => {
   try {
     const { usernameOrEmail, username, email, password } = req.body || {};
-    const ident = (usernameOrEmail || username || email || '').trim();
+    const rawIdent = usernameOrEmail || username || email || '';
+    const ident = typeof rawIdent === 'string' ? rawIdent.trim() : '';
     if (!ident) {
       return res.status(400).json({ error: 'usernameOrEmail is required' });
     }

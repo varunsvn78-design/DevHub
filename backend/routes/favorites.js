@@ -43,6 +43,20 @@ router.post('/', (req, res, next) => {
       return res.status(400).json({ error: 'ref is required' });
     }
     const cleanRef = ref.trim();
+    const validRef = kind === 'repo' ? /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/ : /^[A-Za-z0-9-]+$/;
+    if (!validRef.test(cleanRef) || cleanRef.length > 200) return res.status(400).json({ error: 'Invalid GitHub reference' });
+    for (const [key, value] of Object.entries({ name, avatar_url, url, description })) {
+      if (value != null && (typeof value !== 'string' || value.length > 2000)) return res.status(400).json({ error: `${key} must be a string of at most 2000 characters` });
+    }
+    for (const value of [avatar_url, url]) {
+      if (value) {
+        try { if (!['https:', 'http:'].includes(new URL(value).protocol)) throw new Error(); }
+        catch { return res.status(400).json({ error: 'URLs must use http or https' }); }
+      }
+    }
+    if (stars != null && (typeof stars !== 'number' || !Number.isSafeInteger(stars) || stars < 0)) return res.status(400).json({ error: 'stars must be a nonnegative integer' });
+    const existing = db.prepare('SELECT id FROM favorites WHERE user_id = ? AND kind = ? AND lower(ref) = lower(?)').get(req.user.id, kind, cleanRef);
+    if (existing) return res.status(409).json({ error: 'favorite already exists' });
     try {
       db.prepare(
         'INSERT INTO favorites (user_id, kind, ref, name, avatar_url, url, stars, description) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'

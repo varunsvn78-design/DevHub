@@ -1,56 +1,44 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DevHub — Developer &amp; Repo Analytics</title>
-<link rel="icon" href="data:,">
-<link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#101010">
+  <meta name="description" content="Discover GitHub developers, explore repository analytics, and curate your own open-source collection.">
+  <title>DevHub — Your open-source workspace</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='10' fill='%23252525'/%3E%3Cpath d='m16 12-8 8 8 8m8-16 8 8-8 8' fill='none' stroke='%23eee' stroke-width='3'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-<header class="nav" role="banner">
-  <a class="brand" href="#/" aria-label="DevHub home"><span class="brand-mark">&lt;/&gt;</span> DevHub</a>
-  <button id="menuBtn" class="menu-btn" aria-label="Toggle menu" aria-expanded="false">☰</button>
-  <nav id="mainNav" class="nav-links" aria-label="Main navigation">
-    <a href="#/" data-route="home">Search</a>
-    <a href="#/dashboard" data-route="dashboard">Dashboard</a>
-    <a href="#/compare" data-route="compare">Compare</a>
-  </nav>
-  <div class="nav-right">
-    <span id="rateBadge" class="rate-badge" title="GitHub API rate limit" aria-live="polite">API: …</span>
-    <span id="authState" class="auth-state"></span>
-    <button id="authBtn" class="btn btn-primary">Sign in</button>
+  <a class="skip-link" href="#view">Skip to content</a>
+  <aside id="sidebar" class="sidebar">
+    <a class="brand" href="#/"><span class="brand-mark">&lt;/&gt;</span>DevHub</a>
+    <div class="workspace-label"><span class="workspace-icon">D</span><span>Personal workspace<small>Your corner of open source</small></span></div>
+    <p class="nav-label">Workspace</p>
+    <nav id="mainNav" aria-label="Main navigation">
+      <a href="#/" data-icon="compass">Explore</a>
+      <a href="#/dashboard" data-icon="bookmark">My collection<span id="collectionCount" class="nav-count" hidden></span></a>
+      <a href="#/compare" data-icon="compare">Compare</a>
+    </nav>
+    <div class="sidebar-note"><span data-icon="code"></span><h3>Good code starts<br>with curiosity.</h3><p>Find your next inspiration in the open-source community.</p><a href="https://github.com" target="_blank" rel="noopener noreferrer">Explore GitHub <span aria-hidden="true">↗</span></a></div>
+    <div class="sidebar-bottom"><div class="status-line"><span id="healthDot" class="status-dot"></span><span id="healthText">Connecting to workspace</span></div><span id="rateBadge">Checking API availability…</span></div>
+  </aside>
+  <div id="mainShell" class="main-shell">
+    <header class="topbar">
+      <div class="flex items-center gap-3"><button id="menuBtn" class="icon-btn mobile-menu" aria-label="Open navigation" aria-controls="sidebar" aria-expanded="false"><span data-icon="menu"></span></button><span class="breadcrumb">Workspace <span>/</span> <strong id="pageLabel">Explore</strong></span></div>
+      <div class="flex items-center gap-3"><a class="github-link" href="https://github.com/varunsvn78-design/DevHub" target="_blank" rel="noopener noreferrer" aria-label="View DevHub repository"><span data-icon="github"></span></a><span class="header-divider"></span><span id="authState" class="text-sm text-neutral-400 hidden sm:inline"></span><button id="authBtn" class="btn btn-primary">Sign in <span aria-hidden="true">↗</span></button></div>
+    </header>
+    <main id="view" class="page" tabindex="-1"></main>
+    <footer class="footer"><span>Built for the curious. Powered by GitHub.</span><span>DevHub <span class="text-neutral-600">/</span> Open-source intelligence</span></footer>
   </div>
-</header>
-
-<main id="view" class="container" aria-live="polite"></main>
-
-<footer class="footer"><span>DevHub · GitHub analytics · same-origin API</span><span id="healthDot" title="API health">●</span></footer>
-
-<div id="authModal" class="modal-backdrop" hidden role="dialog" aria-modal="true" aria-labelledby="authTitle">
-  <div class="modal">
-    <h2 id="authTitle">Sign in to DevHub</h2>
-    <div class="tabs" role="tablist">
-      <button id="tabLogin" class="tab active" role="tab" aria-selected="true">Login</button>
-      <button id="tabRegister" class="tab" role="tab" aria-selected="false">Register</button>
-    </div>
-    <form id="loginForm" class="stack">
-      <label>Username or email<input id="loginId" type="text" autocomplete="username" required></label>
-      <label>Password<input id="loginPw" type="password" autocomplete="current-password" required></label>
-      <button class="btn btn-primary" type="submit">Login</button>
-    </form>
-    <form id="registerForm" class="stack" hidden>
-      <label>Username<input id="regUser" type="text" autocomplete="username" required></label>
-      <label>Email<input id="regEmail" type="email" autocomplete="email" required></label>
-      <label>Password<input id="regPw" type="password" autocomplete="new-password" required minlength="6"></label>
-      <button class="btn btn-primary" type="submit">Create account</button>
-    </form>
-    <button id="authClose" class="btn btn-ghost" type="button">Close</button>
-    <p id="authErr" class="error" role="alert"></p>
-  </div>
-</div>
-
-<div id="toasts" class="toasts" aria-live="assertive"></div>
-<script src="app.js"></script>
+  <dialog id="authModal" class="auth-dialog" aria-labelledby="authTitle">
+    <div class="flex items-start justify-between gap-4"><div><span class="brand-mark mb-5">&lt;/&gt;</span><h2 id="authTitle">Welcome back.</h2><p class="muted mt-2">Make a home for your favourite discoveries.</p></div><button id="authClose" class="icon-btn" aria-label="Close sign in"><span data-icon="close"></span></button></div>
+    <div class="tabs mt-6" role="tablist" aria-label="Account access"><button id="tabLogin" role="tab" aria-selected="true" aria-controls="loginForm" class="tab active">Sign in</button><button id="tabRegister" role="tab" aria-selected="false" aria-controls="registerForm" class="tab">Create account</button></div>
+    <form id="loginForm" class="stack mt-6" role="tabpanel"><label>Username or email<input id="loginId" autocomplete="username" required maxlength="254" placeholder="you@example.com"></label><label>Password<input id="loginPw" type="password" autocomplete="current-password" required placeholder="Your password"></label><button class="btn btn-primary mt-2" type="submit">Sign in to your workspace</button></form>
+    <form id="registerForm" class="stack mt-6" role="tabpanel" hidden><label>Username<input id="regUser" autocomplete="username" required minlength="2" maxlength="40" placeholder="Your developer name"></label><label>Email<input id="regEmail" type="email" autocomplete="email" required maxlength="254" placeholder="you@example.com"></label><label>Password<input id="regPw" type="password" autocomplete="new-password" required minlength="8" maxlength="72" placeholder="At least 8 characters"></label><button class="btn btn-primary mt-2" type="submit">Create your workspace</button></form>
+    <p id="authErr" class="error mt-4" role="alert"></p>
+  </dialog>
+  <div id="toasts" class="toasts" aria-live="polite"></div>
+  <script type="module" src="app.js"></script>
 </body>
 </html>
